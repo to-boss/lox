@@ -1,6 +1,6 @@
 from token import Token
 from token_type import Token_type as TT
-from lox import Lox
+import lox
 
 class Scanner:
     def __init__(self, source: str) -> None:
@@ -15,7 +15,7 @@ class Scanner:
             self.start = self.current
             self.scan_token()
         
-        self.tokens.add(Token(TT.EOF, "", None, self.line))
+        self.tokens.append(Token(TT.EOF, "", None, self.line))
         return self.tokens
 
     def scan_token(self):
@@ -67,7 +67,7 @@ class Scanner:
             case '"':
                 self.string()
             case _:
-                Lox.error(self.line, "Unexpected character.")
+                lox.Lox.error(self.line, f"Unexpected character '{c}'")
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -76,7 +76,7 @@ class Scanner:
             self.advance()
         
         if self.is_at_end():
-            Lox.error(self.line, "Unterminated string")
+            lox.Lox.error(self.line, "Unterminated string")
             return
 
         # closing "
@@ -109,5 +109,5 @@ class Scanner:
         return ret
 
     def add_token(self, type: TT, literal=None):
-        text = self.source[self.start, self.current]
+        text = self.source[self.start:self.current]
         self.tokens.append(Token(type, text, literal, self.line))

@@ -1,16 +1,17 @@
 import pathlib
-from scanner import Scanner
+import sys
+import scanner
 
 class Lox:
     had_error = False
 
     @staticmethod
-    def main(args: str):
-        if len(args) < 1:
+    def main():
+        if len(sys.argv) < 1:
             print("Usage: python lox.py [script]")
             exit()
-        elif len(args) == 1:
-            Lox.run_file(args[0])
+        elif len(sys.argv) == 1:
+            Lox.run_file(sys.argv[0])
         else:
             Lox.run_prompt()
 
@@ -35,8 +36,8 @@ class Lox:
 
     @staticmethod
     def run(source: str):
-        scanner = Scanner(source)
-        tokens = scanner.scan_tokens()
+        scnr = scanner.Scanner(source)
+        tokens = scnr.scan_tokens()
 
         for token in tokens:
             print(token)
@@ -47,7 +48,8 @@ class Lox:
 
     @staticmethod
     def report(line: int, where: str, message: str):
-        print("[line {line}] Error {where}: {message}")
-        had_error = True
+        print(f"[line {line}] Error {where}: {message}")
+        Lox.had_error = True
 
-
+if __name__ == "__main__":
+    Lox.main()
