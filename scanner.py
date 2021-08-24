@@ -10,6 +10,25 @@ class Scanner:
         self.current = 0
         self.line = 1
 
+        self.keywords = {
+            "and":TT.AND,
+            "class":TT.CLASS,
+            "else":TT.ELSE,
+            "false":TT.FALSE,
+            "for":TT.FOR,
+            "fun":TT.FUN,
+            "if":TT.IF,
+            "nil":TT.NIL,
+            "or":TT.OR,
+            "print":TT.PRINT,
+            "return":TT.RETURN,
+            "super":TT.SUPER,
+            "this":TT.THIS,
+            "true":TT.TRUE,
+            "var":TT.VAR,
+            "while":TT.WHILE
+        }
+
     def scan_tokens(self):
         while not self.is_at_end():
             self.start = self.current
@@ -67,7 +86,35 @@ class Scanner:
             case '"':
                 self.string()
             case _:
-                lox.Lox.error(self.line, f"Unexpected character '{c}'")
+                if self.is_digit(c):
+                    self.number()
+                elif self.is_alpha(c):
+                    self.identifier()
+                else:
+                    lox.Lox.error(self.line, f"Unexpected character '{c}'")
+
+    def identifier(self):
+        while self.is_alpha_numeric(self.peek()):
+            self.advance()
+
+        text = self.source[self.start:self.current]
+        ttype = self.keywords.get(text)
+        if ttype == None:
+            ttype = TT.IDENTIFIER
+        self.add_token(ttype)
+
+    def number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+        
+        # consume . between number parts
+        if self.peek() == "." and self.is_digit(self.peek_next()):
+            self.advance()
+
+            while self.is_digit(self.peek()):
+                self.advance()
+
+        self.add_token(TT.NUMBER, float(self.source[self.start:self.current]))
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -83,10 +130,10 @@ class Scanner:
         self.advance()
 
         # trim off the surrounding quotes
-        value = self.source[1:self.current-1]
+        value = self.source[self.start+1:self.current-1]
         self.add_token(TT.STRING, value)
 
-    def check_next(self, expected):
+    def check_next(self, expected: str):
         if self.is_at_end():
             return False
         if self.source[self.current] != expected:
@@ -99,6 +146,20 @@ class Scanner:
         if self.is_at_end():
             return "\0"
         return self.source[self.current]
+
+    def peek_next(self):
+        if self.current+1 >= len(self.source):
+            return "\0"
+        return self.source[self.current+1]
+
+    def is_alpha(self, c: str):
+        return (c >= "a" and c <= "z") or (c >= "A" and c <= "Z") or c == "_"
+
+    def is_alpha_numeric(self, c: str):
+        return self.is_alpha(c) or self.is_digit(c)
+
+    def is_digit(self, c):
+        return c >= "0" and c <= "9"
 
     def is_at_end(self):
         return self.current >= len(self.source)
