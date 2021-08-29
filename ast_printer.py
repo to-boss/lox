@@ -31,6 +31,10 @@ class ast_printer(Visitor):
     def visit_unary_expr(self, expr: Unary):
         return self.parenthesize(expr.operator.lexeme, expr.right)
 
+def test_expression(expr):
+    print(expr)
+    assert(expr == "(* (- 123) (group 45.67))")
+
 def main():
     expression = Binary(
         Unary(
@@ -40,7 +44,8 @@ def main():
         Grouping(
             Literal(45.67)))
     printer = ast_printer()
-    print(printer.print(expression))
+    expr = printer.print(expression)
+    test_expression(expr)
 
 if __name__ == "__main__":
     main()
