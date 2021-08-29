@@ -34,12 +34,44 @@ def define_ast(output_dir, base_name, types):
     f.write("\n")
     f.write("\n")
 
+    f.write(f"  def accept(self, visitor):")
+    f.write("\n")
+    f.write(f"      pass")
+    f.write("\n")
+
+    f.write("\n")
+
+    class_names = []
     for type in types:
         class_name = type.split(";")[0].strip()
+        class_names.append(class_name)
         fields = type.split(";")[1].strip()
         define_type(f, base_name, class_name, fields)
+        define_visitor(f, class_name, types)
+
+    define_visitor_class(f, class_names)
 
     f.close()
+
+def define_visitor_class(f, class_names):
+    f.write(f"class Visitor(Expr):")
+    f.write("\n")
+    for name in class_names:
+        f.write(f"  @abstractmethod")
+        f.write("\n")
+        f.write(f"  def visit_{name.lower()}_expr(expr: {name}):")
+        f.write("\n")
+        f.write(f"     pass")
+        f.write("\n")
+        f.write("\n")
+
+def define_visitor(f, class_name, types):
+    f.write(f"  def accept(self, visitor):")
+    f.write("\n")
+    f.write(f"      return visitor.visit_{class_name.lower()}_expr(self)")
+    f.write("\n")
+    f.write("\n")
+    
 
 def define_type(f, base_name, class_name, field_list):
     # needs to be finished
