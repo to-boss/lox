@@ -1,8 +1,8 @@
-from token import *
-from token_type import Token_type as TT
+from token import Token
+from token_type import Token_Type as TT
 from expr import *
 
-class ast_printer(Visitor):
+class Ast_Printer(Visitor):
     def __init__(self):
         pass
 
@@ -43,7 +43,7 @@ def main():
             Token(TT.STAR, "*", None, 1),
         Grouping(
             Literal(45.67)))
-    printer = ast_printer()
+    printer = Ast_Printer()
     expr = printer.print(expression)
     test_expression(expr)
 

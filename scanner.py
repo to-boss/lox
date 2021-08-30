@@ -1,5 +1,5 @@
 from token import Token
-from token_type import Token_type as TT
+from token_type import Token_Type as TT
 import lox
 
 class Scanner:
@@ -158,7 +158,7 @@ class Scanner:
     def is_alpha_numeric(self, c: str):
         return self.is_alpha(c) or self.is_digit(c)
 
-    def is_digit(self, c):
+    def is_digit(self, c: str):
         return c >= "0" and c <= "9"
 
     def is_at_end(self):

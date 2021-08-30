@@ -1,17 +1,19 @@
+from os import stat
 import pathlib
 import sys
 import scanner
+from token_type import Token_Type as TT
+from token import Token
+from parser import Parser
+from ast_printer import Ast_Printer
 
 class Lox:
     had_error = False
 
     @staticmethod
     def main():
-        if len(sys.argv) < 1:
-            print("Usage: python lox.py [script]")
-            exit()
-        elif len(sys.argv) == 1:
-            Lox.run_file(sys.argv[0])
+        if len(sys.argv) == 2:
+            Lox.run_file(sys.argv[1])
         else:
             Lox.run_prompt()
 
@@ -39,8 +41,11 @@ class Lox:
         scnr = scanner.Scanner(source)
         tokens = scnr.scan_tokens()
 
-        for token in tokens:
-            print(token)
+        parser = Parser(tokens)
+        expression = parser.parse()
+        if Lox.had_error: return
+
+        print(Ast_Printer().print(expression))
 
     @staticmethod
     def error(line: int, message: str):
@@ -50,6 +55,13 @@ class Lox:
     def report(line: int, where: str, message: str):
         print(f"[line {line}] Error {where}: {message}")
         Lox.had_error = True
+
+    @staticmethod
+    def error(token: Token, message: str):
+        if token.type == TT.EOF:
+            Lox.report(token.line, " at the end", message)
+        else:
+            Lox.report(token.line, f" at '{token.lexeme}'", message)
 
 if __name__ == "__main__":
     Lox.main()
